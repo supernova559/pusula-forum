@@ -1,0 +1,21 @@
+<!-- templates/registration/logged_out.html -->
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Çıkış Yapıldı</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Başarıyla Çıkış Yaptınız</h2>
+        <p>Tekrar görüşmek üzere!</p>
+        <br>
+        <a href="{% url 'login' %}">Tekrar Giriş Yap</a>
+    </div>
+</body>
+</html>

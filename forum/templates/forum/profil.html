@@ -1,0 +1,120 @@
+{% extends "forum/base.html" %}
+{% load forum_tags %}
+
+{% block title %}{{ profil_user.username }} Profili{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card p-4 mb-5">
+        <div class="d-flex align-items-center">
+            <!-- DOĞRU CLASS'LARLA IMG ETİKETİ -->
+            <img src="{% if profil_user.profil and profil_user.profil.foto %}{{ profil_user.profil.foto.url }}{% else %}{% gravatar_url profil_user.email 100 %}{% endif %}" 
+                 class="me-4 avatar avatar-lg" 
+                 alt="{{ profil_user.username }}">
+            
+            <div>
+                <div class="d-flex align-items-center mb-1">
+                    <h1 class="mb-0">{{ profil_user.profil.gorunen_ad }}</h1>
+                    {% if is_onayli_yazar %}<i class="fas fa-check-circle text-primary ms-2" title="Onaylı Yazar"></i>{% endif %}
+                </div>
+                <p class="text-muted mb-0">Katılım Tarihi: {{ profil_user.date_joined|date:"d F Y" }}</p>
+            </div>
+        </div>
+    </div>
+    {% if profil_user == user and not is_onayli_yazar %}
+    <!-- Bu blok, sadece kullanıcı kendi profiline bakıyorsa VE henüz onaylı yazar değilse görünür -->
+    <div class="card mb-5 text-center">
+        <div class="card-body">
+            <h5 class="card-title">Bilgini Paylaş, Pusula'ya Yön Ver!</h5>
+            <p class="card-text">
+                Topluluğumuza yaptığın değerli katkıları görüyoruz. "Onaylı Yazar" olarak, kendi uzmanlık alanında makaleler yazabilir ve daha geniş bir kitleye ulaşabilirsin.
+            </p>
+            <p class="text-muted">
+                <small>
+                    Onaylı yazar olmak için genel olarak platformumuzda aktif olman, sorulara yardımcı cevaplar vermen ve topluluk ruhunu yansıtman yeterli. Başvurular periyodik olarak incelenmektedir.
+                </small>
+            </p>
+        </div>
+    </div>
+{% endif %}
+    <!-- Sekme Başlıkları -->
+    <ul class="nav nav-tabs nav-fill mb-4" id="profilTab" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="konular-tab" data-bs-toggle="tab" data-bs-target="#konular" type="button" role="tab">Açtığı Konular ({{ konular.count }})</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="cevaplar-tab" data-bs-toggle="tab" data-bs-target="#cevaplar" type="button" role="tab">Cevapları ({{ kullanicinin_cevaplari.count }})</button></li>
+        {% if is_onayli_yazar %}
+        <li class="nav-item" role="presentation"><button class="nav-link" id="makaleler-tab" data-bs-toggle="tab" data-bs-target="#makaleler" type="button" role="tab">Makaleleri ({{ makaleler.count }})</button></li>
+        {% endif %}
+    </ul>
+
+    <!-- Sekme İçerikleri -->
+    <div class="tab-content" id="profilTabContent">
+        <!-- 1. Açtığı Konular Sekmesi -->
+        <div class="tab-pane fade show active" id="konular" role="tabpanel">
+            <div class="list-group">
+                {% for konu in konular %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div> <a href="{{ konu.get_absolute_url }}">
+                <h5 class="mb-1 konu-basligi-linki">{{ konu.baslik }}</h5>
+            </a><small class="text-muted">Kategori: {{ konu.kategori.ad }} · {{ konu.olusturma_tarihi|timesince }} önce</small></div>
+                            {% if konu.olusturan == user %}<div><a href="{% url 'forum:konu_sil_ajax' konu.pk %}" class="btn btn-outline-danger btn-sm sil-butonu">
+    <i class="fas fa-trash"></i> Sil
+</a></div>{% endif %}
+                        </div>
+                    </div>
+                {% empty %}<div class="card p-5 text-center"><p class="mb-0">Bu kullanıcı henüz hiç konu açmamış.</p></div>{% endfor %}
+            </div>
+        </div>
+
+        <!-- 2. Cevapları Sekmesi -->
+        <div class="tab-pane fade" id="cevaplar" role="tabpanel">
+    <div class="list-group">
+        {% for cevap in kullanicinin_cevaplari %}
+            <!-- Her bir cevap için 'list-group-item' kullanıyoruz -->
+            <div class="list-group-item p-3">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    
+                    <!-- Sol Taraf: Cevap Bilgisi (YENİ TASARIM) -->
+                    <div class="me-3"> <!-- Sağdaki butondan boşluk bırakmak için -->
+                        <small class="text-muted">
+                            <a href="{{ cevap.konu.get_absolute_url }}" class="profil-linki"><strong>{{ cevap.konu.baslik }}</strong></a> konusuna cevap yazdı:
+                        </small>
+                        <blockquote class="blockquote mt-2 mb-1 ps-3 border-start border-2">
+                           <p class="mb-0 fst-italic">"{{ cevap.icerik|truncatewords:20 }}"</p>
+                        </blockquote>
+                        <small class="text-muted ps-3">{{ cevap.yazilma_tarihi|timesince }} önce</small>
+                    </div>
+                    
+                    <!-- Sağ Taraf: Silme Butonu -->
+                    {% if cevap.yazan == user %}
+                    <div>
+                        <a href="{% url 'forum:cevap_sil_ajax' cevap.pk %}" class="btn btn-outline-danger btn-sm sil-butonu">
+    <i class="fas fa-trash"></i> Sil
+</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="card p-5 text-center"><p class="mb-0">Bu kullanıcı henüz hiç cevap yazmamış.</p></div>
+        {% endfor %}
+    </div>
+</div>
+        <!-- 3. Makaleleri Sekmesi -->
+        {% if is_onayli_yazar %}
+        <div class="tab-pane fade" id="makaleler" role="tabpanel">
+            <div class="list-group">
+                {% for makale in makaleler %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div><a href="{{ makale.get_absolute_url }}"><h5 class="mb-1 konu-basligi-linki">{{ makale.baslik }}</h5></a><small class="text-muted">{{ makale.olusturma_tarihi|timesince }} önce yayınlandı.</small></div>
+                            {% if makale.yazar == user %}<div><a href="{% url 'blog:makale_sil' makale.pk %}" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i> Sil</a></div>{% endif %}
+                        </div>
+                    </div>
+                {% empty %}<div class="card p-5 text-center"><p class="mb-0">Bu yazar henüz hiç makale yayınlamamış.</p></div>{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

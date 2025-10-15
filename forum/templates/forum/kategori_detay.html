@@ -1,0 +1,111 @@
+{% extends "forum/base.html" %}
+{% load forum_tags %}
+
+{% block title %}{{ kategori.ad }} Kategorisi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Kategori Bilgi Kartı -->
+    <div class="card mb-5">
+        <div class="card-body">
+            <h1 class="card-title">{{ kategori.ad }}</h1>
+            <p class="card-text">{{ kategori.aciklama }}</p>
+            <!-- YENİ KONTROL BURADA BAŞLIYOR -->
+        {% if user.is_authenticated %}
+            <!-- Eğer kullanıcı giriş yapmışsa, butonu göster -->
+            <a href="{% url 'forum:yeni_konu' %}" class="btn btn-primary mt-2">
+                <i class="fas fa-plus"></i> Yeni Konu Aç
+            </a>
+        {% else %}
+    <!-- Eğer giriş yapmamışsa, bir uyarı ve giriş linki göster -->
+    <p class="mt-3">
+        <a href="{% url 'forum:login' %}?next={{ request.path }}" class="profil-linki">Giriş yaparak</a> yeni bir konu başlatabilirsiniz.
+    </p>
+{% endif %}
+        <!-- YENİ KONTROL BURADA BİTİYOR -->
+        </div>
+    </div>
+
+    <!-- Konu Listesi -->
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Bu Kategorideki Konular</h2>
+    
+    <!-- YENİ: SIRALAMA BUTONLARI -->
+    <div class="btn-group" role="group">
+    <a href="?sirala=en-yeni" class="btn {% if aktif_siralama == 'en-yeni' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        <i class="fas fa-clock"></i> En Yeni
+    </a>
+    <a href="?sirala=en-populer" class="btn {% if aktif_siralama == 'en-populer' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        <i class="fas fa-fire"></i> En Popüler
+    </a>
+</div>
+    <!-- SIRALAMA BUTONLARI BİTTİ -->
+</div>
+    <div class="list-group">
+        {% for konu in konular_listesi %}
+            <div class="list-group-item p-3">
+                <div class="d-flex align-items-center">
+                   
+                    <!-- YENİ KONTROL -->
+{% if konu.olusturan %} 
+    <img src="{% if konu.olusturan.profil and konu.olusturan.profil.foto %}{{ konu.olusturan.profil.foto.url }}{% else %}{% gravatar_url konu.olusturan.email 40 %}{% endif %}" class="me-3 avatar avatar-sm" alt="{{ konu.olusturan.username }}">
+{% endif %}
+                    
+                    <!-- Başlık ve Kullanıcı Bilgisi -->
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">
+                           <a href="{% url 'forum:konu_detay' konu.id %}" class="konu-basligi-linki">{{ konu.baslik }}</a>
+                        </h5>
+                        <small>
+                           <a class="profil-linki" href="{% url 'forum:profil' konu.olusturan.username %}">{{ konu.olusturan.username }}</a> · {{ konu.olusturma_tarihi|timesince }} önce
+                    
+                        </small>
+                    </div>
+                    
+                    <!-- İstatistikler (Sağ Taraf) -->
+                    <div class="ms-auto text-end" style="min-width: 100px;">
+                        <span class="d-block"><i class="fas fa-comment"></i> {{ konu.cevap_set.count }}</span>
+                        <span class="d-block"><i class="fas fa-eye"></i> {{ konu.goruntulenme_sayisi }}</span>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="list-group-item">Bu kategoride henüz hiç konu açılmamış.</div>
+        {% endfor %}
+    </div>
+
+    <!-- Sayfalama Linkleri -->
+    {% if konular_listesi.has_other_pages %}
+    <nav aria-label="Sayfa navigasyonu" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if konular_listesi.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ konular_listesi.previous_page_number }}">Önceki</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Önceki</span></li>
+            {% endif %}
+
+            {% for i in konular_listesi.paginator.page_range %}
+                {% if konular_listesi.number == i %}
+                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if konular_listesi.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ konular_listesi.next_page_number }}">Sonraki</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Sonraki</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <div class="text-center mt-4">
+         <a href="{% url 'forum:anasayfa' %}" class="btn btn-secondary">« Tüm Kategorilere Geri Dön</a>
+    </div>
+
+</div>
+{% endblock %}

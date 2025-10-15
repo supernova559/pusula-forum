@@ -1,0 +1,16 @@
+{% extends "forum/base.html" %}
+{% block title %}E-posta Doğrulandı{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-5">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h2>E-posta Adresin Doğrulandı!</h2>
+                <p class="lead"><strong>{{ email }}</strong> adresi başarıyla hesabına eklendi.</p>
+                <a href="{% url 'forum:ayarlar' %}" class="btn btn-primary mt-3">Ayarlar'a Dön</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

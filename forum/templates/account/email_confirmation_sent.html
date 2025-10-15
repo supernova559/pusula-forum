@@ -1,0 +1,16 @@
+{% extends "forum/base.html" %}
+{% block title %}Doğrulama Gönderildi{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-5">
+                <i class="fas fa-paper-plane fa-3x text-success mb-3"></i>
+                <h2>E-postanı Kontrol Et</h2>
+                <p class="lead"><strong>{{ email }}</strong> adresine bir doğrulama linki gönderdik. Lütfen gelen kutunu kontrol et.</p>
+                <a href="{% url 'forum:anasayfa' %}" class="btn btn-secondary mt-3">Ana Sayfaya Dön</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

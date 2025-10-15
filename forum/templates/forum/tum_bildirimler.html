@@ -1,0 +1,60 @@
+{% extends "forum/base.html" %}
+{% load forum_tags %}
+
+{% block title %}Tüm Bildirimler{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4">Bildirimler</h1>
+            
+            <div class="list-group">
+            {% for bildirim in bildirimler %}
+                <!-- Her bir bildirim için bir kutu -->
+                <div class="list-group-item p-3 {% if not bildirim.okundu %}list-group-item-primary border-primary{% endif %}">
+                    <div class="d-flex w-100">
+                        <!-- Gönderenin Avatarı -->
+                        <img src="{% if bildirim.gonderen.profil and bildirim.gonderen.profil.foto %}{{ bildirim.gonderen.profil.foto.url }}{% else %}{% gravatar_url bildirim.gonderen.email 40 %}{% endif %}" class="me-3 avatar avatar-sm" alt="{{ bildirim.gonderen.username }}">
+                        
+                        <div class="w-100">
+                            <!-- BİLDİRİM MESAJI (TEKRARSIZ) -->
+                            <p class="mb-2">
+                                <a href="{% url 'forum:profil' bildirim.gonderen.username %}" class="profil-linki">{{ bildirim.gonderen.username }}</a>
+                                <!-- Sadece 'mesaj' alanını yazdırıyoruz, artık içinde kullanıcı adı yok -->
+                                {{ bildirim.mesaj }}
+                            </p>
+                            
+                            <!-- İLGİLİ CEVABIN ÖNİZLEMESİ -->
+                            {% if bildirim.ilgili_cevap %}
+                            <a href="{{ bildirim.get_absolute_url }}" class="text-decoration-none d-block">
+                                <div class="p-3 rounded" style="background-color: rgba(0,0,0,0.2);">
+                                    <p class="mb-0 fst-italic">"{{ bildirim.ilgili_cevap.icerik|truncatewords:20 }}"</p>
+                                </div>
+                            </a>
+                            {% endif %}
+                            
+                            <small class="text-muted mt-2 d-block">{{ bildirim.tarih|timesince }} önce</small>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="card p-5 text-center"><p class="mb-0">Hiç bildiriminiz yok.</p></div>
+            {% endfor %}
+            </div>
+
+            <!-- Sayfalama -->
+            {% if is_paginated %}
+            <nav aria-label="Sayfa navigasyonu" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Önceki</a></li>{% else %}<li class="page-item disabled"><span class="page-link">Önceki</span></li>{% endif %}
+                    {% for i in paginator.page_range %}{% if page_obj.number == i %}<li class="page-item active"><span class="page-link">{{ i }}</span></li>{% else %}<li class="page-item"><a class="page-link" href="?page={{ i }}</a></li>{% endif %}{% endfor %}
+                    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonraki</a></li>{% else %}<li class="page-item disabled"><span class="page-link">Sonraki</span></li>{% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

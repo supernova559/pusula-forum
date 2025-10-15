@@ -1,0 +1,12 @@
+{% load forum_tags %}
+<input type="text" class="form-control mb-3" id="begenenlerSearch" placeholder="Beğenenler arasında ara...">
+<ul class="list-group list-group-flush" id="begenenlerList">
+    {% for kullanici in begenenler %}
+        <li class="list-group-item d-flex align-items-center">
+            <img src="{% if kullanici.profil and kullanici.profil.foto %}{{ kullanici.profil.foto.url }}{% else %}{% gravatar_url kullanici.email 40 %}{% endif %}" class="avatar avatar-sm me-3" alt="{{ kullanici.username }}">
+            <a href="{% url 'forum:profil' kullanici.username %}" class="profil-linki">{{ kullanici.profil.gorunen_ad|default:kullanici.username }}</a>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Henüz kimse beğenmemiş.</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,43 @@
+{% extends "forum/base.html" %}
+{% load i18n %}
+
+{% block title %}Sosyal Medya ile Giriş{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card p-4">
+                <div class="card-body text-center">
+                    
+                    {% if provider.name == 'Google' %}
+                        <i class="fab fa-google fa-3x mb-3 text-danger"></i>
+                    {% endif %}
+
+                    <h2 class="card-title mb-3">
+                        {% blocktrans with provider.name as provider %}<strong>{{ provider }}</strong> ile Giriş Yap{% endblocktrans %}
+                    </h2>
+
+                    <p class="lead">
+                        {% blocktrans with provider.name as provider %}Google hesabınla Pusula Forum'a giriş yapmak üzeresin.{% endblocktrans %}
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Onayla ve Devam Et</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            <a href="{% url 'forum:kayit_ol' %}">Farklı bir yöntemle giriş yap</a>
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

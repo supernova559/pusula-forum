@@ -1,0 +1,63 @@
+{% extends "forum/base.html" %}
+
+{% block title %}{{ makale.baslik }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% if makale.one_cikan_gorsel %}
+                <img src="{{ makale.one_cikan_gorsel.url }}" class="img-fluid rounded mb-4 shadow" alt="{{ makale.baslik }}">
+            {% endif %}
+            <h1 class="display-5 fw-bold">{{ makale.baslik }}</h1>
+           
+            <!-- templates/blog/makale_detay.html -->
+<p class="text-muted border-bottom pb-3 mb-4">
+   {% if makale.yazar %}  Yazar: <a href="{% url 'forum:profil' makale.yazar.username %}" class="profil-linki">{{ makale.yazar.profil.gorunen_ad|default:makale.yazar.username }}</a> |  {% endif %}
+    Yayınlanma: {{ makale.olusturma_tarihi|date:"d F Y" }} |
+    <span class="ms-2"><i class="fas fa-eye"></i> {{ makale.goruntulenme_sayisi }} Görüntülenme</span>
+</p>
+            <div class="makale-icerik">
+                {{ makale.icerik|safe }}
+            </div>
+     <div class="card p-3 mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+
+        <!-- Sol Taraf: Beğeni Butonu ve Sayacı -->
+        <div class="d-flex align-items-center">
+            {% if user.is_authenticated %}
+                <a href="{% url 'blog:makale_begen' makale.pk %}" class="btn {% if user in makale.begenenler.all %}btn-danger{% else %}btn-outline-danger{% endif %} begen-butonu-makale" data-makale-id="{{ makale.pk }}">
+                    <i class="{% if user in makale.begenenler.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                    <!-- SAYAÇ BUTONUN İÇİNDE -->
+                    <span class="ms-1" id="begeni-sayaci-makale-{{ makale.pk }}">{{ makale.begenenler.count }}</span>
+                </a>
+            {% else %}
+                <a href="{% url 'forum:login' %}?next={{ request.path }}" class="btn btn-outline-danger disabled" title="Beğenmek için giriş yapmalısınız">
+                    <i class="far fa-heart"></i>
+                    <span class="ms-1">{{ makale.begenenler.count }}</span>
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Sağ Taraf: Paylaşım Butonları -->
+        <div class="d-flex align-items-center">
+             <strong class="me-3 d-none d-md-block">Paylaş:</strong>
+             <div class="share-buttons-container">
+                <a href="https://twitter.com/intent/tweet?text={{ makale.baslik|urlencode }}&url={{ request.build_absolute_uri }}" target="_blank" class="share-btn btn-twitter" title="X'te Paylaş"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn btn-facebook" title="Facebook'ta Paylaş"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="https://api.whatsapp.com/send?text={{ makale.baslik|urlencode }}%20{{ request.build_absolute_uri }}" target="_blank" class="share-btn btn-whatsapp" title="WhatsApp'ta Paylaş"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="{{ request.build_absolute_uri }}" class="share-btn btn-copy-link" id="copyLinkBtn" title="Linki Kopyala"><i class="fa-solid fa-link"></i></a>
+             </div>
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+<hr class="my-5">
+<!-- "Tüm Makalelere Geri Dön" butonu artık ayrı ve aralıklı -->
+<div class="text-center">
+    <a href="{% url 'blog:blog_anasayfa' %}" class="btn btn-secondary">« Tüm Makalelere Geri Dön</a>
+</div>
+{% endblock %}

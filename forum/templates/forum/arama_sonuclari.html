@@ -1,0 +1,46 @@
+{% extends "forum/base.html" %}
+{% load forum_tags %}
+
+{% block title %}'{{ query }}' için arama sonuçları{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if query %}
+        <h1>'{{ query }}' için arama sonuçları</h1>
+        <p class="text-muted">{{ sonuclar.count }} sonuç bulundu.</p>
+    {% else %}
+        <h1>Arama</h1>
+        <p class="text-muted">Lütfen bir arama terimi girin.</p>
+    {% endif %}
+    
+    <hr>
+
+    <!-- Kategori Detay Sayfasından Kopyalanan ve Düzenlenen Konu Listesi -->
+    <div class="list-group">
+        {% for konu in sonuclar %}
+            <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                     <img src="{% if konu.olusturan.profil and konu.olusturan.profil.foto %}{{ konu.olusturan.profil.foto.url }}{% else %}{% gravatar_url konu.olusturan.email 40 %}{% endif %}" class="me-3 avatar avatar-sm" alt="{{ konu.olusturan.username }}">
+                  
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">
+                            <a href="{% url 'forum:konu_detay' konu.id %}" class="konu-basligi-linki">{{ konu.baslik }}</a>
+                        </h5>
+                        <small class="text-muted">
+                            <a class="profil-linki" href="{% url 'forum:profil' konu.olusturan.username %}">{{ konu.olusturan.username }}</a> · {{ konu.olusturma_tarihi|timesince }} önce
+                        </small>
+                    </div>
+                    <div class="ms-auto text-muted text-end" style="min-width: 100px;">
+                        <span class="d-block"><i class="fas fa-comment"></i> {{ konu.cevap_set.count }}</span>
+                        <span class="d-block"><i class="fas fa-eye"></i> {{ konu.goruntulenme_sayisi }}</span>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            {% if query %}
+                <div class="list-group-item">Aradığınız terime uygun bir konu bulunamadı.</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

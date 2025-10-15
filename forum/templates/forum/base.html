@@ -1,0 +1,355 @@
+{% load static %}
+{% load forum_tags %}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Pusula Forum{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23FFFFFF' d='M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM128 256c0-70.7 57.3-128 128-128s128 57.3 128 128s-57.3 128-128 128S128 326.7 128 256zM256 320c35.3 0 64-28.7 64-64s-28.7-64-64-64s-64 28.7-64 64s28.7 64 64 64z'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --primary-color: #8e44ad; --secondary-color: #3498db; --dark-bg: #1a1a2e;
+            --light-text: #e0e0e0; --muted-text-color: #a0a0a0; --card-bg: rgba(255, 255, 255, 0.05);
+        }
+        body {
+            background-image: linear-gradient(rgba(26, 26, 46, 0.95), rgba(26, 26, 46, 0.95)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop');
+            background-attachment: fixed; background-size: cover; color: var(--light-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        main { position: relative; z-index: 1; }
+        .card, .list-group-item, .dropdown-menu, .modal-content { background: var(--card-bg) !important; border-radius: 15px !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important; color: var(--light-text); }
+        .card:hover, .list-group-item-action:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.1) !important; }
+        .card-header, .border-top, .dropdown-divider, .modal-header, .modal-footer { border-color: rgba(255, 255, 255, 0.2) !important; background: transparent; }
+        .list-group { border-radius: 15px; overflow: hidden; }
+        .list-group-item { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .list-group-item:last-child { border-bottom: none; }
+        .btn-primary, .badge.bg-primary { background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color)); border: none; transition: transform 0.2s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+        a, a.profil-linki:hover { color: var(--secondary-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        a.profil-linki { color: var(--light-text); font-weight: bold; }
+        a.konu-basligi-linki { color: var(--light-text); text-decoration: none; }
+        a.konu-basligi-linki:hover { color: var(--secondary-color); }
+        .navbar.bg-dark { background: rgba(26, 26, 46, 0.8) !important; backdrop-filter: blur(10px); }
+        .form-control, .form-select { background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--light-text); }
+        .form-control::placeholder { color: var(--muted-text-color); }
+        .form-control:focus, .form-select:focus { background-color: var(--card-bg); color: var(--light-text); box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.5); border-color: var(--secondary-color); }
+        .pagination .page-link { background-color: transparent; border-color: rgba(255, 255, 255, 0.2); color: var(--light-text); }
+        .pagination .page-item.active .page-link { background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color)); border-color: var(--primary-color); }
+        .pagination .page-item.disabled .page-link { background-color: transparent; color: #6c757d; }
+        .list-group-item small, .text-muted { color: var(--muted-text-color) !important; }
+        .navbar-brand, .navbar-brand:hover { text-decoration: none; }
+        .navbar-brand strong { color: #fff; transition: all 0.4s ease; text-shadow: none; }
+        .navbar-brand:hover strong { background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 10px rgba(52, 152, 219, 0.7); }
+        .share-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: white; text-decoration: none; transition: transform 0.2s ease; font-size: 1.1rem; }
+        .share-btn:hover { transform: scale(1.1); color: white; }
+        .btn-twitter { background-color: #000000; } .btn-facebook { background-color: #1877F2; } .btn-whatsapp { background-color: #25D366; } .btn-copy-link { background-color: #6c757d; }
+        .dropdown-item { color: var(--light-text) !important; }
+        .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.1) !important; color: white !important; }
+        .dropdown-header { color: var(--muted-text-color) !important; }
+        .avatar { object-fit: cover; border-radius: 50%; }
+        .avatar-xs { width: 32px !important; height: 32px !important; }
+        .avatar-sm { width: 40px !important; height: 40px !important; }
+        .avatar-lg { width: 100px !important; height: 100px !important; }
+        .footer { background-color: rgba(10, 10, 20, 0.5); padding: 2rem 0; color: var(--muted-text-color); font-size: 0.9em; }
+        .footer a { color: var(--light-text); }
+        
+        .copy-email-btn { cursor: pointer; }
+        .back-to-top-btn { position: fixed !important; bottom: 90px !important; right: 20px !important; z-index: 1040 !important; width: 50px !important; height: 50px !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 1.5rem !important; cursor: pointer !important; opacity: 0 !important; visibility: hidden !important; transform: translateY(20px) !important; transition: all 0.3s ease !important; }
+        .back-to-top-btn.show { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; }
+        
+.highlighted {
+    position: relative; /* ::before elementinin konumlanabilmesi için gerekli */
+    z-index: 2; /* Diğer kartların üstünde kalması için */
+}
+
+.highlighted::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Parlama rengi ve başlangıç durumu */
+    background-color: rgba(52, 152, 219, 0.3); /* Mavimsi parlama */
+    opacity: 1;
+    
+    /* Animasyon tanımı */
+    animation: highlight-fade-out 2s ease-in-out forwards;
+    
+    /* Kartın yuvarlak köşelerine uyması için */
+    border-radius: 15px;
+    z-index: -1; /* Metnin arkasında kalması için */
+}
+/* YÜZEN BUTONLAR İÇİN ESKİ AMA DOĞRU CSS */
+
+.floating-contact-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+.floating-contact-btn .dropdown-menu {
+    width: 280px;
+    /* Glassmorphism stilleri zaten .dropdown-menu class'ında tanımlı */
+}
+.copy-email-btn { cursor: pointer; }
+
+.back-to-top-btn {
+    position: fixed !important;
+    bottom: 90px !important; /* İletişim butonunun biraz üstünde */
+    right: 20px !important;
+    z-index: 1040 !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(20px) !important;
+    transition: all 0.3s ease !important;
+}
+
+.back-to-top-btn.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+@keyframes highlight-fade-out {
+    to {
+        opacity: 0; /* Yavaşça tamamen şeffaf ol */
+    }
+}
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100" {% if messages %}{% for message in messages %}{% if message.message == 'hosgeldin_karti_goster' %}data-show-welcome-modal="true"{% endif %}{% endfor %}{% endif %}>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'forum:anasayfa' %}"><strong>Pusula</strong></a>
+            <ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="{% url 'blog:blog_anasayfa' %}">Blog</a></li></ul>
+            {% if request.resolver_match.url_name == 'arama' %}<form class="d-flex mx-auto" method="get" action="{% url 'forum:arama' %}"><input class="form-control me-2" type="search" name="q" value="{{ request.GET.q }}" placeholder="Konularda Ara..." aria-label="Search"><button class="btn btn-outline-success" type="submit">Ara</button></form>{% else %}<div class="mx-auto" style="min-width: 300px;"></div>{% endif %}
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text me-3 d-none d-lg-block">Merhaba, <strong>{{ user.username }}</strong>!</span>
+                    <div class="dropdown me-2">
+                        <a href="#" class="nav-link text-white" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Bildirimler"><i class="fas fa-bell fa-lg"></i>{% if okunmamis_bildirimler %}<span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.6em; transform: translate(-50%, -50%);">{{ okunmamis_bildirimler.count }}</span>{% endif %}</a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                            <li><h6 class="dropdown-header">Son Bildirimler</h6></li><li><hr class="dropdown-divider"></li>
+                            {% for bildirim in okunmamis_bildirimler|slice:":5" %}<li><a class="dropdown-item" href="{{ bildirim.get_absolute_url }}"><div class="d-flex align-items-start"><img src="{% if bildirim.gonderen.profil and bildirim.gonderen.profil.foto %}{{ bildirim.gonderen.profil.foto.url }}{% else %}{% gravatar_url bildirim.gonderen.email 30 %}{% endif %}" class="avatar avatar-xs me-2 mt-1" alt="{{ bildirim.gonderen.username }}"><div><p class="mb-0" style="white-space: normal;"><strong class="profil-linki">{{ bildirim.gonderen.username }}</strong> {{ bildirim.mesaj }}</p><small class="text-muted">{{ bildirim.tarih|timesince }} önce</small></div></div></a></li>{% empty %}<li><a class="dropdown-item" href="#">Yeni bildirim yok.</a></li>{% endfor %}
+                            <li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center" href="{% url 'forum:tum_bildirimler' %}">Tümünü Gör</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <a href="#" class="nav-link text-white dropdown-toggle" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Profilim ve Ayarlar"><img src="{% if user.profil and user.profil.foto %}{{ user.profil.foto.url }}{% else %}{% gravatar_url user.email 32 %}{% endif %}" alt="{{ user.username }}" class="avatar avatar-xs"></a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="{% url 'forum:profil' user.username %}"><i class="fas fa-user-circle me-2"></i>Profilim</a></li>
+                            <li><a class="dropdown-item" href="{% url 'forum:profil_duzenle' %}"><i class="fas fa-user-edit me-2"></i>Profili Düzenle</a></li>
+                            <li><a class="dropdown-item" href="{% url 'forum:ayarlar' %}"><i class="fas fa-cog me-2"></i>Ayarlar</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><form method="post" action="{% url 'forum:logout' %}" class="d-inline">{% csrf_token %}<button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</button></form></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a class="nav-link me-2" href="{% url 'forum:login' %}"><i class="fas fa-sign-in-alt"></i> Giriş Yap</a>
+                    <a class="btn btn-primary" href="{% url 'forum:kayit_ol' %}"><i class="fas fa-user-plus"></i> Kayıt Ol</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}<div class="container mt-4" style="z-index: 2000; position: relative;">{% for message in messages %}{% if message.message != 'hosgeldin_karti_goster' %}<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endif %}{% endfor %}</div>{% endif %}
+
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer mt-auto py-3" style="background-color: rgba(10, 10, 20, 0.5);">
+        <div class="container text-center"><p class="mb-1 text-muted">© {% now "Y" %} Pusula. Tüm Hakları Saklıdır.</p><small><a href="{% url 'forum:hakkimizda' %}" class="mx-2">Hakkımızda</a></small></div>
+    </footer>
+<!-- YÜZEN İLETİŞİM BUTONU (DROPUP İLE) -->
+<div class="dropup floating-contact-btn">
+    <button class="btn btn-primary rounded-circle shadow-lg" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 60px; height: 60px;">
+        <i class="fas fa-envelope fa-2x"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end mb-2">
+        <li><h6 class="dropdown-header">İletişim</h6></li>
+        <li><hr class="dropdown-divider"></li>
+        <li class="px-3 py-2">
+            <small class="text-muted">Reklam, Sponsorluk ve Öneriler:</small>
+            <div class="input-group mt-1">
+                <input type="text" class="form-control" value="iletisim@pusula.com" readonly id="contactEmail">
+                <button class="btn btn-outline-secondary copy-email-btn" type="button" data-copy-target="#contactEmail" title="E-postayı Kopyala">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!-- YUKARI ÇIK BUTONU -->
+<div id="backToTopBtn" class="btn btn-primary back-to-top-btn" title="Yukarı Çık">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// --- BİLDİRİMDEN GELEN HEDEFİ VURGULAMA ---
+// Sayfa URL'sinde bir '#' (çapa) var mı diye kontrol et
+if (window.location.hash) {
+    // Çapadaki '#' karakterini kaldırarak ID'yi al (örn: '#cevap-123' -> 'cevap-123')
+    const targetId = window.location.hash.substring(1);
+    const targetElement = document.getElementById(targetId);
+ 
+     console.log("Aranan ID:", targetId); // <-- 3. KONTROL NOKTASI
+    console.log("Bulunan element:", targetElement); // <-- 4. KONTROL NOKTASI
+
+    // Eğer o ID'ye sahip bir element sayfada varsa
+    if (targetElement) {
+        // Küçük bir gecikmeyle çalıştırarak sayfanın tam oturmasını bekle
+        setTimeout(function() {
+            // Elemente 'highlighted' class'ını ekle
+            targetElement.classList.add('highlighted');
+
+            // Animasyon bittikten sonra (2 saniye), class'ı tekrar kaldır ki
+            // sayfa yenilendiğinde tekrar tetiklenmesin.
+            setTimeout(function() {
+                targetElement.classList.remove('highlighted');
+            }, 2000);
+        }, 300); // 300 milisaniye sonra
+    }
+}
+    
+    // --- GENEL DEĞİŞKENLER ---
+    const csrftoken = document.querySelector('[name=csrf-token]').content;
+// --- YUKARI ÇIK BUTONU ---
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (backToTopBtn) {
+        window.onscroll = function() {
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        };
+        backToTopBtn.addEventListener('click', function(event) {
+            event.preventDefault(); // Olası '#' link davranışını engelle
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    }
+    // --- BEĞENİ SİSTEMİ (OLAY DEĞİŞTİRME İLE - DOĞRU HALİ) ---
+    document.body.addEventListener('click', function(event) {
+        // Tıklanan elementin bir beğeni butonu olup olmadığını kontrol et
+       const begenButonu = event.target.closest('.begen-butonu, .begen-butonu-konu, .begen-butonu-makale, .begen-butonu-yanit');
+
+        if (begenButonu) {
+            event.preventDefault(); // Sayfanın yenilenmesini engelle
+            event.stopPropagation(); // Olayın "köpürmesini" ve modal'ı tetiklemesini engelle
+
+            let objectId, type, url;
+if (begenButonu.classList.contains('begen-butonu-konu')) {
+    type = 'konu';
+    objectId = begenButonu.dataset.konuId;
+    url = `/konu/${objectId}/begen/`;
+} else if (begenButonu.classList.contains('begen-butonu-makale')) {
+    type = 'makale';
+    objectId = begenButonu.dataset.makaleId;
+    url = `/blog/${objectId}/begen/`;
+} else if (begenButonu.classList.contains('begen-butonu-yanit')) {
+    type = 'yanit';
+    objectId = begenButonu.dataset.yanitId;
+    url = `/yanit/${objectId}/begen/`;
+} else {
+    type = 'cevap';
+    objectId = begenButonu.dataset.cevapId;
+    url = `/cevap/${objectId}/begen/`;
+}
+            
+            const counterElement = begenButonu.querySelector(`#begeni-sayaci-${type}-${objectId}`);
+            const icon = begenButonu.querySelector('i');
+
+            fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }})
+            .then(response => response.json()).then(data => {
+                if (counterElement) { counterElement.textContent = data.begeni_sayisi; }
+                begenButonu.classList.toggle('btn-danger');
+                begenButonu.classList.toggle('btn-outline-danger');
+                icon.classList.toggle('fas');
+                icon.classList.toggle('far');
+            });
+        }
+    });
+
+    // --- "KİMLER BEĞENDİ" MODAL SİSTEMİ ---
+    const begenenlerModalEl = document.getElementById('begenenlerModal');
+    if (begenenlerModalEl) {
+        const modalBody = document.getElementById('begenenlerModalBody');
+        begenenlerModalEl.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (button && button.dataset.objectType) {
+                const objectId = button.dataset.objectId;
+                const objectType = button.dataset.objectType;
+                modalBody.innerHTML = '<div class="d-flex justify-content-center p-3"><div class="spinner-border" role="status"></div></div>';
+                fetch(`/ajax/begenenleri-getir/?object_type=${objectType}&object_id=${objectId}`)
+                    .then(response => response.json()).then(data => {
+                        modalBody.innerHTML = data.html;
+                        const begenenlerSearch = document.getElementById('begenenlerSearch');
+                        const begenenlerList = document.getElementById('begenenlerList');
+                        if (begenenlerSearch && begenenlerList) {
+                            begenenlerSearch.addEventListener('keyup', function() {
+                                const filter = this.value.toLowerCase();
+                                const items = begenenlerList.getElementsByTagName('li');
+                                for (let i = 0; i < items.length; i++) {
+                                    const a = items[i].getElementsByTagName('a')[0];
+                                    if (a && a.textContent.toLowerCase().indexOf(filter) > -1) { items[i].style.display = ""; } 
+                                    else { items[i].style.display = "none"; }
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => { modalBody.innerHTML = '<div class="p-3">Liste yüklenirken bir sorun oluştu.</div>'; });
+            }
+        });
+    }
+
+    // --- BİLDİRİMLERİ OKUMA ---
+    const notificationsDropdown = document.getElementById('notificationsDropdown');
+    if (notificationsDropdown) {
+        const notificationBadge = notificationsDropdown.querySelector('.badge');
+        notificationsDropdown.addEventListener('show.bs.dropdown', event => {
+            if (notificationBadge && notificationBadge.style.display !== 'none') {
+                fetch("{% url 'forum:bildirimleri_oku' %}", { method: 'POST', headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' }})
+                .then(response => response.json()).then(data => { if (data.status === 'ok') { notificationBadge.style.display = 'none'; } });
+            }
+        });
+    }
+    
+    // --- KOPYALAMA İŞLEVLERİ ---
+    document.querySelectorAll('.copy-email-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.dataset.copyTarget; const emailInput = document.querySelector(targetId);
+            if (emailInput) { navigator.clipboard.writeText(emailInput.value).then(() => { const originalIcon = this.innerHTML; this.innerHTML = '<i class="fas fa-check text-success"></i>'; setTimeout(() => { this.innerHTML = originalIcon; }, 2000); }); }
+        });
+    });
+    const copyLinkButton = document.getElementById('copyLinkBtn');
+    if (copyLinkButton) {
+        copyLinkButton.addEventListener('click', function(event) {
+            event.preventDefault(); const urlToCopy = this.href;
+            navigator.clipboard.writeText(urlToCopy).then(() => { const originalIcon = this.innerHTML; this.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { this.innerHTML = originalIcon; }, 2000); });
+        });
+    }
+});
+</script>
+</body>
+</html>

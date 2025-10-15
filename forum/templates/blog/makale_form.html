@@ -1,0 +1,59 @@
+{% extends "forum/base.html" %}
+
+{% block title %}Yeni Makale Gönder{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10"> <!-- Daha geniş bir form alanı için lg-10 yapalım -->
+            <div class="card p-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Yeni Makale Oluştur</h2>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Bu satır, CKEditor'ın CSS ve JS dosyalarını yüklemesi için ZORUNLUDUR -->
+                        {{ form.media }}
+
+                        <!-- Form Hataları (varsa) -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger">Lütfen formdaki hataları düzeltin.</div>
+                        {% endif %}
+
+                        <!-- Başlık Alanı -->
+                        <div class="mb-4">
+                            <label for="{{ form.baslik.id_for_label }}" class="form-label h4">{{ form.baslik.label }}</label>
+                            {{ form.baslik }}
+                            <small class="form-text text-muted">Okuyucunun dikkatini çekecek, net ve açıklayıcı bir başlık seçin.</small>
+                        </div>
+
+                        <!-- Kategori ve Görsel Alanları (Yan yana) -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.kategori.id_for_label }}" class="form-label h4">{{ form.kategori.label }}</label>
+                                {{ form.kategori }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.one_cikan_gorsel.id_for_label }}" class="form-label h4">{{ form.one_cikan_gorsel.label }}</label>
+                                {{ form.one_cikan_gorsel }}
+                                <small class="form-text text-muted">Makalenin en üstünde görünecek. Lütfen yatay (geniş) bir fotoğraf seçin.</small>
+                            </div>
+                        </div>
+
+                        <!-- İçerik Alanı (CKEditor) -->
+                        <div class="mb-4">
+                            <label for="{{ form.icerik.id_for_label }}" class="form-label h4">{{ form.icerik.label }}</g>
+                            {{ form.icerik }}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">İncelemeye Gönder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

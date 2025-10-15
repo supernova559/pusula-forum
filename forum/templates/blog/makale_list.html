@@ -1,0 +1,57 @@
+{% extends "forum/base.html" %}
+{% load forum_tags %}
+
+{% block title %}Pusula Blog{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Pusula Blog</h1>
+        {% if is_onayli_yazar %}
+            <a href="{% url 'blog:makale_yeni' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-plus-circle"></i> Yeni Makale Yaz
+            </a>
+        {% endif %}
+    </div>
+    
+    <div class="row g-4">
+    {% for makale in makaleler %}
+         <div class="col-lg-4 col-md-6">
+            <!-- Her makale kendi bağımsız kartı içinde -->
+            <div class="card h-100">
+                {% if makale.one_cikan_gorsel %}
+                    <a href="{{ makale.get_absolute_url }}">
+                        <img src="{{ makale.one_cikan_gorsel.url }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ makale.baslik }}">
+                    </a>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h3 class="card-title">
+                        <!-- Başlık kendi linkine sahip -->
+                        <a href="{{ makale.get_absolute_url }}" class="konu-basligi-linki">{{ makale.baslik }}</a>
+                    </h3>
+                    <p class="text-muted mb-2">
+                        <small>
+    Yazar: <a href="{% url 'forum:profil' makale.yazar.username %}" class="profil-linki">{{ makale.yazar.profil.gorunen_ad|default:makale.yazar.username }}</a> | 
+    Tarih: {{ makale.olusturma_tarihi|date:"d F Y" }} |
+    <i class="fas fa-eye"></i> {{ makale.gorunenme_sayisi }}
+</small>
+                    </p>
+                    <p class="card-text flex-grow-1">{{ makale.icerik|striptags|truncatewords:25 }}</p>
+                    <!-- "Devamını Oku" butonu kendi linkine sahip -->
+                    <a href="{{ makale.get_absolute_url }}" class="btn btn-primary mt-auto">Devamını Oku →</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="card p-5 text-center"><p class="mb-0">Henüz yayınlanmış bir makale bulunmuyor.</p></div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <!-- Sayfalama Linkleri -->
+    {% if is_paginated %}
+        <!-- ... (Sayfalama kodun burada, değişiklik yok) ... -->
+    {% endif %}
+</div>
+{% endblock %}
